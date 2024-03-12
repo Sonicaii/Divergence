@@ -11,16 +11,11 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.PreferenceManager
 import androidx.viewbinding.BuildConfig
 import com.vlprojects.divergence.databinding.ActivityMainBinding
-import com.vlprojects.divergence.logic.*
-import com.vlprojects.divergence.logic.DivergenceMeter.getDivergenceValuesOrGenerate
-import com.vlprojects.divergence.logic.DivergenceMeter.saveDivergence
 import timber.log.Timber
-import kotlin.math.round
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
-    private lateinit var prefs: SharedPreferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,46 +28,7 @@ class MainActivity : AppCompatActivity() {
 //        PreferenceManager.getDefaultSharedPreferences(this).edit().clear().apply()
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false)
 
-        prefs = getSharedPreferences(SHARED_FILENAME, 0)
-        setDivergenceText()
-
-        binding.changeDivergenceButton.setOnClickListener { changeDivergence() }
-        prefs.registerOnSharedPreferenceChangeListener(onDivergenceChangeListener)
-
         updateWidgets()
-    }
-
-    private fun setDivergenceText() {
-        val div = prefs.getDivergenceValuesOrGenerate()
-        binding.currentDivergence.text = "%.6f".format(div.current / MILLION.toFloat())
-        binding.nextDivergence.text = "%.6f".format(div.next / MILLION.toFloat())
-    }
-
-    private fun changeDivergence() {
-        val userDiv = binding.userDivergence.text.toString()
-        if (userDiv.isBlank()) {
-            if (updateWidgets())
-                Toast.makeText(this, "Autoupdate!", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        val userDivNumber = round(userDiv.toDouble() * MILLION).toInt()
-        if (userDivNumber !in ALL_RANGE) {
-            Toast.makeText(
-                this,
-                "Wrong value. Should be in (%.6f;%.6f)".format(
-                    ALL_RANGE.range.first / MILLION.toFloat(),
-                    (ALL_RANGE.range.last + 1) / MILLION.toFloat(),
-                ),
-                Toast.LENGTH_LONG
-            ).show()
-            return
-        }
-
-        prefs.saveDivergence(nextDiv = userDivNumber)
-
-        if (updateWidgets())
-            Toast.makeText(this, "Updated!", Toast.LENGTH_SHORT).show()
     }
 
     // Returns false if there are no widgets or true otherwise
@@ -98,13 +54,6 @@ class MainActivity : AppCompatActivity() {
 
         return true
     }
-
-    // Using field so it won't be garbage collected
-    private val onDivergenceChangeListener =
-        SharedPreferences.OnSharedPreferenceChangeListener { _, tag ->
-            if (tag == SHARED_CURRENT_DIVERGENCE)
-                setDivergenceText()
-        }
 
     /** Menu **/
 

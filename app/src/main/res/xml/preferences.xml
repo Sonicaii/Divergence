@@ -20,24 +20,5 @@
         android:summary="Stops clock from updating when screen is off. Disable this if you want to use this on the always on display"
         app:iconSpaceReserved="false"
         app:defaultValue="true" />
-    <SwitchPreference
-        android:key="attractor_notifications"
-        android:defaultValue="true"
-        android:title="Attractor change notifications"
-        app:iconSpaceReserved="false"/>
-    <SwitchPreference
-        android:key="known_worldline_notifications"
-        android:defaultValue="true"
-        android:title="Known Worldlines notifications"
-        android:summary="Notifications for known worldlines (such as 1.048596)"
-        app:iconSpaceReserved="false"/>
-    <EditTextPreference
-        android:key="attractor_change_cooldown"
-        android:defaultValue="24"
-        android:selectAllOnFocus="true"
-        android:singleLine="true"
-        android:title="Cooldown for attractor change"
-        android:summary="Set the cooldown in hours (0 - no cooldown)"
-        app:iconSpaceReserved="false"/>
 
 </PreferenceScreen>

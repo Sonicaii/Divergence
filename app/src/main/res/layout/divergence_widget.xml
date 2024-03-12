@@ -2,16 +2,15 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     tools:ignore="ContentDescription">
 
     <LinearLayout
         android:id="@+id/tubes"
-        android:layout_height="wrap_content"
-        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_width="match_parent"
         android:gravity="center_horizontal"
-        android:paddingLeft="2dp"
-        android:paddingRight="2dp"
+        android:padding="4dp"
         android:background="@android:color/black"
         tools:ignore="ContentDescription">
 
@@ -20,7 +19,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            tools:srcCompat="@drawable/nixie_minus"
+            tools:srcCompat="@drawable/nixie0"
             android:adjustViewBounds="true" />
 
         <ImageView
@@ -28,7 +27,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            tools:srcCompat="@drawable/nixie0"
+            tools:srcCompat="@drawable/nixie1"
             android:adjustViewBounds="true" />
 
         <ImageView
@@ -44,7 +43,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            tools:srcCompat="@drawable/nixie2"
+            tools:srcCompat="@drawable/nixie4"
             android:adjustViewBounds="true" />
 
         <ImageView
@@ -52,7 +51,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            tools:srcCompat="@drawable/nixie3"
+            tools:srcCompat="@drawable/nixie5"
             android:adjustViewBounds="true" />
 
         <ImageView
@@ -66,17 +65,17 @@
         <ImageView
             android:id="@+id/tube6"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_weight="1"
-            tools:srcCompat="@drawable/nixie6"
+            tools:srcCompat="@drawable/nixie7"
             android:adjustViewBounds="true" />
 
         <ImageView
             android:id="@+id/tube7"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_weight="1"
-            tools:srcCompat="@drawable/nixie7"
+            tools:srcCompat="@drawable/nixie8"
             android:adjustViewBounds="true" />
 
     </LinearLayout>
