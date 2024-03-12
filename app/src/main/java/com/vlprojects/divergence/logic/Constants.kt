@@ -3,6 +3,7 @@ package com.vlprojects.divergence.logic
 import com.vlprojects.divergence.R
 
 const val SHARED_FILENAME = "divergence_widget"
+const val WIDGET_CLICK_ACTION = "com.vlprojects.divergence.action.WIDGET_CLICK_ACTION"
 
 const val SETTING_TIME_FORMAT = "time_format"
 const val SETTING_POWER_SAVING = "power_saving"

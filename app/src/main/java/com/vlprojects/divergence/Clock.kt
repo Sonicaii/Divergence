@@ -23,15 +23,8 @@ class Clock : Service() {
         override fun run() {
             if (screenOn) {
                 // Glitch animation logic
-                if (!glitchRunning && DivergenceWidget.glitch_animation) {
-                    glitchRunning = true
-                    glitchIteration = Random.nextInt(3..5)
-                    val delay = 1000 - (System.currentTimeMillis() % 1000) - glitchIteration * 70
-                    if (delay > 0) // Make sure there is enough time left for animation
-                        handler.postDelayed(clockGlitchRunnable, delay)
-                    else
-                        handler.postDelayed(clockGlitchRunnable, delay + 1000)
-                }
+                if (!glitchRunning && DivergenceWidget.glitch_animation)
+                    startGlitch()
                 // Rest of widget update
                 updateWidgets()
                 handler.removeCallbacks(this)
@@ -103,6 +96,11 @@ class Clock : Service() {
     }
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
+        when (intent?.action) {
+            WIDGET_CLICK_ACTION -> {
+                startGlitch(true)
+            }
+        }
         return START_STICKY
     }
 
@@ -135,6 +133,20 @@ class Clock : Service() {
                     Random.nextInt(CLOCK_ANIMATION_DELAY_MIN..CLOCK_ANIMATION_DELAY_MAX).toLong()
                 )
             }
+        }
+    }
+
+    private fun startGlitch(overrideDelay: Boolean = false) {
+        glitchRunning = true
+        glitchIteration = Random.nextInt(3..5)
+        if (overrideDelay) {
+            handler.post(clockGlitchRunnable)
+        } else {
+            val delay = 1000 - (System.currentTimeMillis() % 1000) - glitchIteration * 70
+            if (delay > 0) // Make sure there is enough time left for animation
+                handler.postDelayed(clockGlitchRunnable, delay)
+            else
+                handler.postDelayed(clockGlitchRunnable, delay + 1000)
         }
     }
 
