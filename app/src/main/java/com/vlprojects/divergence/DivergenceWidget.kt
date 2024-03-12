@@ -3,23 +3,33 @@ package com.vlprojects.divergence
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.appwidget.AppWidgetManager
-import android.content.Context
+import android.content.*
 import android.content.Context.NOTIFICATION_SERVICE
 import android.os.Build
 import android.widget.RemoteViews
+import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.preference.PreferenceManager
 import com.vlprojects.divergence.logic.*
 import com.vlprojects.divergence.logic.DivergenceMeter.getDivergenceValuesOrGenerate
 import com.vlprojects.divergence.logic.DivergenceMeter.saveDivergence
 import timber.log.Timber
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 import java.util.Date
 
 class DivergenceWidget : android.appwidget.AppWidgetProvider() {
 
+    companion object {
+        var glitch_animation = false
+    }
+
+    private var timePattern = "HH:mm:ss"
+
     override fun onEnabled(context: Context) {
         super.onEnabled(context)
         createNotificationChannel(context)
+        context.startService(Intent(context, Clock::class.java))
     }
 
     override fun onUpdate(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {
@@ -30,6 +40,8 @@ class DivergenceWidget : android.appwidget.AppWidgetProvider() {
 
         val div = prefs.getDivergenceValuesOrGenerate()
         val nextDivDigits = DivergenceMeter.splitIntegerToDigits(div.next)
+        timePattern = if (settings.getBoolean(SETTING_TIME_FORMAT, true)) "HH:mm:ss" else "hh:mm:ss"
+        glitch_animation = settings.getBoolean(SETTING_GLITCH_ANIMATION, false)
 
         onDivergenceChange(context, div)
 
@@ -50,19 +62,30 @@ class DivergenceWidget : android.appwidget.AppWidgetProvider() {
             cooldown
         )
         prefs.saveDivergence(div.next, newDiv)
+        context.startForegroundService(Intent(context, Clock::class.java))
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun updateAppWidget(
         packageName: String,
         appWidgetManager: AppWidgetManager,
         appWidgetId: Int,
-        divergenceDigits: IntArray
+        divergenceDigits: IntArray,
     ) {
         val views = RemoteViews(packageName, R.layout.divergence_widget)
-        views.setImageViewResource(R.id.tubeDot, R.drawable.nixie_dot)
 
+        val currentTime = LocalTime.now()
+        val formattedTime = currentTime.format(DateTimeFormatter.ofPattern(timePattern))
+        // Convert the formatted time string to a list of integers
+        val divergenceDigits = formattedTime.map { char ->
+            when (char) {
+                ':' -> 10
+                '.' -> 10
+                else -> char.toString().toInt()
+            }
+        }
         // Setting numbers in place
-        for (i in 0..6) {
+        for (i in 0..7) {
             views.setImageViewResource(
                 tubeIds[i],
                 if (divergenceDigits[i] >= 0)

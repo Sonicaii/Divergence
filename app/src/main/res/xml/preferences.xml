@@ -4,6 +4,23 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <SwitchPreference
+        android:key="time_format"
+        android:title="Use 24-hour format"
+        app:iconSpaceReserved="false"
+        android:defaultValue="false" />
+    <SwitchPreference
+        android:key="glitch_animation"
+        android:title="Enable animation"
+        android:summary="Will perform a glitch animation before every second. May skip a second if system is under load."
+        app:iconSpaceReserved="false"
+        app:defaultValue="false" />
+    <SwitchPreference
+        android:key="power_saving"
+        android:title="Power saving mode"
+        android:summary="Stops clock from updating when screen is off. Disable this if you want to use this on the always on display"
+        app:iconSpaceReserved="false"
+        app:defaultValue="true" />
+    <SwitchPreference
         android:key="attractor_notifications"
         android:defaultValue="true"
         android:title="Attractor change notifications"
@@ -22,4 +39,5 @@
         android:title="Cooldown for attractor change"
         android:summary="Set the cooldown in hours (0 - no cooldown)"
         app:iconSpaceReserved="false"/>
+
 </PreferenceScreen>

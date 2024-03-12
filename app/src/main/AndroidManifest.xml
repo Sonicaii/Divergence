@@ -2,6 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           xmlns:tools="http://schemas.android.com/tools"
           package="com.vlprojects.divergence">
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
 
     <application
         android:allowBackup="false"
@@ -14,6 +15,7 @@
         <receiver android:name=".DivergenceWidget">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+                <action android:name="com.vlprojects.divergence.action.WIDGET_CLICK_ACTION" />
             </intent-filter>
 
             <meta-data
@@ -36,6 +38,8 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity"/>
         </activity>
+
+        <service android:name=".Clock" />
     </application>
 
 </manifest>

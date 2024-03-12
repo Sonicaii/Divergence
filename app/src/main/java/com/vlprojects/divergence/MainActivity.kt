@@ -2,9 +2,7 @@ package com.vlprojects.divergence
 
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
-import android.content.ComponentName
-import android.content.Intent
-import android.content.SharedPreferences
+import android.content.*
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -40,6 +38,8 @@ class MainActivity : AppCompatActivity() {
 
         binding.changeDivergenceButton.setOnClickListener { changeDivergence() }
         prefs.registerOnSharedPreferenceChangeListener(onDivergenceChangeListener)
+
+        updateWidgets()
     }
 
     private fun setDivergenceText() {
