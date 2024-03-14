@@ -15,6 +15,11 @@
         app:iconSpaceReserved="false"
         app:defaultValue="false" />
     <SwitchPreference
+        android:key="glitch_affects_all"
+        android:title="Touching tubes glitches all tubes"
+        app:iconSpaceReserved="false"
+        app:defaultValue="false" />
+    <SwitchPreference
         android:key="power_saving"
         android:title="Power saving mode"
         android:summary="Stops clock from updating when screen is off. Disable this if you want to use this on the always on display"

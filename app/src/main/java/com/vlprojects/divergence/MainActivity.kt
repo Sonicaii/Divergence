@@ -6,7 +6,6 @@ import android.content.*
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.PreferenceManager
 import androidx.viewbinding.BuildConfig
@@ -28,31 +27,38 @@ class MainActivity : AppCompatActivity() {
 //        PreferenceManager.getDefaultSharedPreferences(this).edit().clear().apply()
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false)
 
-        updateWidgets()
-    }
+        binding.addWidgetLarge.setOnClickListener {
+            val context = it.context
+            val appWidgetManager = AppWidgetManager.getInstance(context)
+            val myProvider = ComponentName(context, DivergenceWidgetLarge::class.java)
 
-    // Returns false if there are no widgets or true otherwise
-    private fun updateWidgets(): Boolean {
-        val ids = AppWidgetManager.getInstance(application).getAppWidgetIds(
-            ComponentName(application, DivergenceWidget::class.java)
-        )
-        if (ids.isEmpty()) {
-            Toast.makeText(
-                this,
-                "There are no widgets, please add one before changing the divergence",
-                Toast.LENGTH_LONG
-            ).show()
-            return false
+            if (appWidgetManager.isRequestPinAppWidgetSupported()) {
+                val successCallback = PendingIntent.getBroadcast(
+                    context,
+                    0,
+                    Intent(),
+                    PendingIntent.FLAG_UPDATE_CURRENT
+                )
+                appWidgetManager.requestPinAppWidget(myProvider, null, successCallback)
+            }
+        }
+        binding.addWidgetSmall.setOnClickListener {
+            val context = it.context
+            val appWidgetManager = AppWidgetManager.getInstance(context)
+            val myProvider = ComponentName(context, DivergenceWidgetSmall::class.java)
+
+            if (appWidgetManager.isRequestPinAppWidgetSupported()) {
+                val successCallback = PendingIntent.getBroadcast(
+                    context,
+                    0,
+                    Intent(),
+                    PendingIntent.FLAG_UPDATE_CURRENT
+                )
+                appWidgetManager.requestPinAppWidget(myProvider, null, successCallback)
+            }
         }
 
-        val intentUpdate = Intent(this, DivergenceWidget::class.java)
-        intentUpdate.action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
-        intentUpdate.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids)
-
-        val pendingIntent = PendingIntent.getBroadcast(this, 0, intentUpdate, PendingIntent.FLAG_UPDATE_CURRENT)
-        pendingIntent.send()
-
-        return true
+        UpdateWidgets.using(application)
     }
 
     /** Menu **/
@@ -71,6 +77,28 @@ class MainActivity : AppCompatActivity() {
                 true
             }
             else -> super.onOptionsItemSelected(item)
+        }
+    }
+}
+
+object UpdateWidgets {
+    fun using(application: Context, ignoreSmall: Boolean = false, specific: Pair<Int, Class<*>?>? = null) {
+        val toUpdate = mutableListOf<Class<*>>(specific?.second ?: DivergenceWidgetLarge::class.java)
+        if (!ignoreSmall)
+            toUpdate.add(DivergenceWidgetSmall::class.java)
+        for (widget in toUpdate) {
+            val ids = if (specific == null)
+                AppWidgetManager.getInstance(application).getAppWidgetIds(ComponentName(application, widget))
+            else
+                intArrayOf(specific.first)
+            if (ids.isEmpty()) continue
+            val intentUpdate = Intent(application, widget)
+            intentUpdate.action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
+            intentUpdate.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids)
+
+            val pendingIntent =
+                PendingIntent.getBroadcast(application, 0, intentUpdate, PendingIntent.FLAG_UPDATE_CURRENT)
+            pendingIntent.send()
         }
     }
 }

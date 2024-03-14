@@ -8,17 +8,21 @@ import android.widget.RemoteViews
 import androidx.annotation.RequiresApi
 import androidx.preference.PreferenceManager
 import com.vlprojects.divergence.logic.*
+import timber.log.Timber
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
 
-class DivergenceWidget : android.appwidget.AppWidgetProvider() {
+abstract class DivergenceWidget : android.appwidget.AppWidgetProvider() {
 
     companion object {
         var glitch_animation = false
     }
 
-    private var timePattern = "HH:mm:ss"
+    abstract var layout: Int
+    abstract var timePattern24: String
+    abstract var timePattern12: String
+    private var timePattern = timePattern24
 
     override fun onEnabled(context: Context) {
         super.onEnabled(context)
@@ -30,17 +34,18 @@ class DivergenceWidget : android.appwidget.AppWidgetProvider() {
 
         val settings = PreferenceManager.getDefaultSharedPreferences(context)
 
-        timePattern = if (settings.getBoolean(SETTING_TIME_FORMAT, true)) "HH:mm:ss" else "hh:mm:ss"
+        timePattern = if (settings.getBoolean(SETTING_TIME_FORMAT, true)) timePattern24 else timePattern12
         glitch_animation = settings.getBoolean(SETTING_GLITCH_ANIMATION, false)
 
-        // Firstly, apply saved next divergence to the widgets,
-        // so that the divergence can be updated to a specific number
+        // Listen to click action for each app widget
         appWidgetIds.forEach {
+            Timber.d("Queued update for: $it")
             val intent = Intent(context, Clock::class.java).apply {
                 action = WIDGET_CLICK_ACTION
                 putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, it)
+                putExtra(LAYOUT, layout)
             }
-            val pendingIntent = PendingIntent.getService(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+            val pendingIntent = PendingIntent.getService(context, it, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
             updateAppWidget(context.packageName, pendingIntent, appWidgetManager, it)
         }
 
@@ -54,7 +59,7 @@ class DivergenceWidget : android.appwidget.AppWidgetProvider() {
         appWidgetManager: AppWidgetManager,
         appWidgetId: Int,
     ) {
-        val views = RemoteViews(packageName, R.layout.divergence_widget).apply {
+        val views = RemoteViews(packageName, layout).apply {
             setOnClickPendingIntent(R.id.tubes, pendingIntent)
         }
 
@@ -65,21 +70,37 @@ class DivergenceWidget : android.appwidget.AppWidgetProvider() {
         val divergenceDigits = formattedTime.map { char ->
             when (char) {
                 ':' -> 10
-                '.' -> 10
                 else -> char.toString().toInt()
             }
         }
         // Setting numbers in place
-        for (i in 0..7) {
+        for (i in timePattern.indices) {
             views.setImageViewResource(
                 tubeIds[i],
-                if (divergenceDigits[i] >= 0)
-                    nixieNumberDrawables[divergenceDigits[i]]
-                else
-                    R.drawable.nixie_minus
+                nixieNumberDrawables[divergenceDigits[i]]
             )
         }
 
         appWidgetManager.updateAppWidget(appWidgetId, views)
     }
+}
+
+class DivergenceWidgetLarge: DivergenceWidget() {
+    companion object {
+        var layout = R.layout.divergence_widget
+    }
+
+    override var layout = DivergenceWidgetLarge.layout
+    override var timePattern24 = "HH:mm:ss"
+    override var timePattern12 = "hh:mm:ss"
+}
+
+class DivergenceWidgetSmall: DivergenceWidget() {
+    companion object {
+        var layout = R.layout.divergence_widget_small
+    }
+
+    override var layout = DivergenceWidgetSmall.layout
+    override var timePattern24 = "HH:mm:ss"
+    override var timePattern12 = "hh:mm:ss"
 }

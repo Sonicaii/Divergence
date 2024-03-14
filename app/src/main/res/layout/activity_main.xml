@@ -1,18 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-            xmlns:tools="http://schemas.android.com/tools"
             android:layout_height="match_parent"
             android:layout_width="match_parent">
 
     <LinearLayout android:layout_height="wrap_content" android:layout_width="match_parent"
                   android:orientation="vertical" android:layout_margin="8dp">
+
+        <TextView
+            android:text="@string/add_widget_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.AppCompat.Large"
+            android:textSize="20sp"
+            android:layout_marginBottom="6dp"/>
         <TextView
             android:text="@string/add_widget_guide"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" android:id="@+id/textView"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.AppCompat.Large"
+            android:textSize="16sp"
+            android:layout_marginBottom="6dp"/>
+        <TextView
+            android:text="@string/lock_widget_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:textAppearance="@style/TextAppearance.AppCompat.Large"
             android:textSize="20sp"
+            android:layout_marginBottom="6dp"/>
+        <TextView
+            android:text="@string/lock_widget_guide"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.AppCompat.Large"
+            android:textSize="16sp"
             android:layout_marginBottom="6dp"/>
         <TextView
             android:id="@+id/textView3"
@@ -21,11 +42,26 @@
             android:layout_width="match_parent"
             android:textAppearance="@style/TextAppearance.AppCompat.Large"
             android:textSize="20sp"/>
+
         <View
             android:id="@+id/divider"
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="?android:attr/listDivider"
-            android:layout_margin="8dp"/>
+            android:layout_margin="18dp"/>
+
+        <Button
+            android:text="@string/add_widget_large"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableTop="@drawable/appwidget_preview"
+            android:id="@+id/addWidgetLarge" />
+
+        <Button
+            android:text="@string/add_widget_small"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableTop="@drawable/small_clock_preview"
+            android:id="@+id/addWidgetSmall" />
     </LinearLayout>
 </ScrollView>

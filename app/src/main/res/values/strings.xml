@@ -5,12 +5,19 @@
     <string name="next_divergence">Next divergence:</string>
     <string name="hint_enter_new_divergence_here">Enter new divergence here</string>
     <string name="change">Change</string>
-    <string name="add_widget_guide">To add the widget:
-        \n- On a Home screen, hold an empty space. Tap Widgets section.
-        \n- Find a Divergence widget. Hold it and move wherever you want.
+    <string name="add_widget_title">To add the widget:</string>
+    <string name="add_widget_guide">
+        - On a Home screen, hold an empty space.
+        \n- Tap Widgets section.
+        \n- Find a Divergence widget. Hold it then move and scale wherever you want.
     </string>
-    <string name="resize_widget_guide">To resize the widget, hold it and release.
-        You\'ll see the dots around it that you can move.
+    <string name="lock_widget_title">Add widget to lock screen:</string>
+    <string name="lock_widget_guide">If you are running a Samsung, you can get GoodLock LockStar to add the widget to the lock and always on display screens. For other android devices you can try buying Lockscreen Widgets and Drawer, but this app has not been tested with it.</string>
+    <string name="resize_widget_guide">*Widgets will try to resize to fit the adjustable border
     </string>
     <string name="menu_settings">Settings</string>
+    <string name="add_widget_large">Add full clock</string>
+    <string name="add_widget_small">Add simple clock</string>
+    <string name="large_name">Full Clock</string>
+    <string name="small_name">Simple Clock</string>
 </resources>
