@@ -9,7 +9,6 @@ import androidx.core.app.NotificationCompat
 import androidx.preference.PreferenceManager
 import com.vlprojects.divergence.logic.*
 import timber.log.Timber
-import java.util.Calendar
 import kotlin.random.Random
 import kotlin.random.nextInt
 
