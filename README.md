@@ -1,5 +1,6 @@
 # Divergence Clock
 Android divergence meter widget like that in Steins;Gate, but as a clock.
+<br>Many thanks and credits to [@retanar](https://github.com/retanar/)'s [divergence meter](https://github.com/retanar/Divergence_Meter/) for initial resources and project structure.
 
 ### Features
 - Accurate system time synced clocks
