@@ -11,7 +11,6 @@ android {
         targetSdkVersion(30)
         versionCode = 1
         versionName = "0.5.0"
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         resConfigs("en")
     }
     buildTypes {
