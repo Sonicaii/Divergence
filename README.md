@@ -1,26 +1,23 @@
-# Divergence Meter
-Android divergence meter widget like that in Steins;Gate.
+# Divergence Clock
+Android divergence meter widget like that in Steins;Gate, but as a clock.
 
 ### Features
-- Displaying divergence number in nixie tubes;
-- Changing the divergence every 2 hours;
-- 6 attractor fields: Alpha, Beta, Gamma, Delta, Epsilon and Omega;
-- Balanced random system, that lowers the chance of going to another attractor field;
-- Ability to set your own divergence number;
-- Notifications, when changing attractor field and for known worldlines.
+- Accurate system time synced clocks
+- Power saving mode
+- Animation when tubes are touched
 
 ### Images
-Normal view:
+Full Clock:
 
 ![widget preview](app/src/main/res/drawable-nodpi/appwidget_preview.jpg)
 
-With minus:
+Simple Clock:
 
-![minus preview](app/src/main/res/drawable-nodpi/appwidget_minus_preview.jpg)
+![minus preview](app/src/main/res/drawable-nodpi/small_clock.jpg)
 
 ## Download
-https://github.com/retanar/Divergence_Meter/releases
+https://github.com/Sonicaii/Divergence/releases
 
-### Known issues
-- For unknown reasons, you may encounter an error "Problem loading widget". 
-Fix: delete and add the widget again.
+### Future features
+- Customise animation
+- Upload and use custom images
