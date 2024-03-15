@@ -13,7 +13,7 @@ Full Clock:
 
 Simple Clock:
 
-![minus preview](app/src/main/res/drawable-nodpi/small_clock.jpg)
+![minus preview](app/src/main/res/drawable-nodpi/small_clock_preview.jpg)
 
 ## Download
 https://github.com/Sonicaii/Divergence/releases
