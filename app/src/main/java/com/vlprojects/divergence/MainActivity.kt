@@ -82,9 +82,15 @@ class MainActivity : AppCompatActivity() {
 }
 
 object UpdateWidgets {
-    fun using(application: Context, ignoreSmall: Boolean = false, specific: Pair<Int, Class<*>?>? = null) {
-        val toUpdate = mutableListOf<Class<*>>(specific?.second ?: DivergenceWidgetLarge::class.java)
-        if (!ignoreSmall)
+    private val map: Map<Int?, Class<out DivergenceWidget>?> = mapOf(
+        R.layout.divergence_widget to DivergenceWidgetLarge::class.java,
+        R.layout.divergence_widget_small to DivergenceWidgetSmall::class.java,
+        null to null
+    )
+
+    fun using(application: Context, specific: Pair<Int, Int>? = null, updateMinutes: Boolean = true) {
+        val toUpdate = mutableListOf<Class<*>>(map[specific?.second] ?: DivergenceWidgetLarge::class.java)
+        if (updateMinutes)
             toUpdate.add(DivergenceWidgetSmall::class.java)
         for (widget in toUpdate) {
             val ids = if (specific == null)

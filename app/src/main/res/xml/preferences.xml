@@ -11,12 +11,7 @@
     <SwitchPreference
         android:key="glitch_animation"
         android:title="Enable animation"
-        android:summary="Will perform a glitch animation before every second. May skip a second if system is under load."
-        app:iconSpaceReserved="false"
-        app:defaultValue="false" />
-    <SwitchPreference
-        android:key="glitch_affects_all"
-        android:title="Touching tubes glitches all tubes"
+        android:summary="Will perform a short glitch animation before every second"
         app:iconSpaceReserved="false"
         app:defaultValue="false" />
     <SwitchPreference

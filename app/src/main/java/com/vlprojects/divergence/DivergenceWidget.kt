@@ -8,7 +8,6 @@ import android.widget.RemoteViews
 import androidx.annotation.RequiresApi
 import androidx.preference.PreferenceManager
 import com.vlprojects.divergence.logic.*
-import timber.log.Timber
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
@@ -39,7 +38,6 @@ abstract class DivergenceWidget : android.appwidget.AppWidgetProvider() {
 
         // Listen to click action for each app widget
         appWidgetIds.forEach {
-            Timber.d("Queued update for: $it")
             val intent = Intent(context, Clock::class.java).apply {
                 action = WIDGET_CLICK_ACTION
                 putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, it)
@@ -81,7 +79,7 @@ abstract class DivergenceWidget : android.appwidget.AppWidgetProvider() {
             )
         }
 
-        appWidgetManager.updateAppWidget(appWidgetId, views)
+        appWidgetManager.partiallyUpdateAppWidget(appWidgetId, views)
     }
 }
 

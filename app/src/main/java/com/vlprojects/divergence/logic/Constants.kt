@@ -2,21 +2,19 @@ package com.vlprojects.divergence.logic
 
 import com.vlprojects.divergence.R
 
-const val SHARED_FILENAME = "divergence_widget"
 const val WIDGET_CLICK_ACTION = "com.vlprojects.divergence.action.WIDGET_CLICK_ACTION"
 const val LAYOUT = "LAYOUT"
 
 const val SETTING_TIME_FORMAT = "time_format"
 const val SETTING_POWER_SAVING = "power_saving"
 const val SETTING_GLITCH_ANIMATION = "glitch_animation"
-const val SETTING_GLITCH_AFFECTS_ALL = "glitch_affects_all"
 
 const val CLOCK_ANIMATION_ITER_MIN = 3
 const val CLOCK_ANIMATION_ITER_MAX = 5
 const val CLOCK_ANIMATION_DELAY_MIN = 30
 const val CLOCK_ANIMATION_DELAY_MAX = 70
 const val CLOCK_SECONDS = 1000
-const val CLICK_MINUTES = 60000
+const val CLOCK_MINUTES = 60000
 
 const val CLOCK_NOTIFICATION_CHANNEL = "divergence_clock_channel"
 const val CLOCK_ID = 102

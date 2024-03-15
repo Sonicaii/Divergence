@@ -9,46 +9,50 @@ import androidx.core.app.NotificationCompat
 import androidx.preference.PreferenceManager
 import com.vlprojects.divergence.logic.*
 import timber.log.Timber
-import kotlin.random.Random
-import kotlin.random.nextInt
 
 
 class Clock : Service() {
 
     private lateinit var screenStateReceiver: BroadcastReceiver
+    private val preferencesListener = SharedPreferences.OnSharedPreferenceChangeListener{ prefs, key ->
+        if (key == SETTING_GLITCH_ANIMATION)
+            DivergenceWidget.glitch_animation = prefs.getBoolean(key, false)
+        startClocks()
+    }
     private val handler = Handler(Looper.getMainLooper())
     private var screenOn = true
 
     private fun doRunnableLogic(runnable: Runnable, time: Int) {
-        Timber.d("Tick %d", System.currentTimeMillis())
-        if (screenOn) {
-            val ignoreSmall = time == CLOCK_SECONDS
-            val delay = time - (System.currentTimeMillis() % time)
+        if (!screenOn) return
 
-            // Glitch animation logic
-            if (DivergenceWidget.glitch_animation)
-                handler.postDelayed(
-                    {
-                        val (iterations, glitchDelay) = prepareGlitch(time)
-                        startGlitch(iterations, glitchDelay, ignoreSmall = ignoreSmall)
-                    },
-                    (time - CLOCK_ANIMATION_DELAY_MAX * CLOCK_ANIMATION_ITER_MAX).toLong()
-                )
+        val updateMinutes = time == CLOCK_MINUTES
+        val delay = time - (System.currentTimeMillis() % time)
 
-            UpdateWidgets.using(application, ignoreSmall)
-
-            handler.removeCallbacks(runnable)
-            handler.postDelayed(runnable, delay)
+        // Glitch animation logic
+        if (DivergenceWidget.glitch_animation) {
+            val (glitchDelay, animation) = prepareGlitch(delay)
+            Timber.d("Next glitch in $glitchDelay ms")
+            handler.postDelayed(
+                { startGlitch(animation, updateMinutes = updateMinutes) },
+                glitchDelay
+            )
         }
+
+        UpdateWidgets.using(application, updateMinutes = updateMinutes)
+
+        handler.removeCallbacks(runnable)
+        handler.postDelayed(runnable, delay)
     }
 
-    private val secondsRunnable: Runnable = object : Runnable {
-        override fun run() = doRunnableLogic(this, CLOCK_SECONDS)
-    }
-
-    private val minutesRunnable: Runnable = object : Runnable {
-        override fun run() = doRunnableLogic(this, CLICK_MINUTES)
-    }
+    private val clockParts = listOf(
+        object : Runnable {
+            override fun run() = doRunnableLogic(this, CLOCK_SECONDS)
+        },
+        object : Runnable {
+            override fun run() = doRunnableLogic(this, CLOCK_MINUTES)
+        }
+    )
+    private fun startClocks() = clockParts.map { handler.post(it) }
 
     override fun onCreate() {
         super.onCreate()
@@ -75,8 +79,7 @@ class Clock : Service() {
                     Intent.ACTION_SCREEN_ON -> {
                         // Resume operation when screen is activated
                         screenOn = true
-                        handler.post(secondsRunnable)
-                        handler.post(minutesRunnable)
+                        startClocks()
                     }
                 }
             }
@@ -86,30 +89,32 @@ class Clock : Service() {
             addAction(Intent.ACTION_SCREEN_ON)
         }
         registerReceiver(screenStateReceiver, filter)
-        handler.post(secondsRunnable)
-        handler.post(minutesRunnable)
+
+        // Update clocks and restart animations depending on preferences toggles
+        PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(preferencesListener)
+
+        startClocks()
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        handler.removeCallbacks(secondsRunnable)
+        startClocks()
         unregisterReceiver(screenStateReceiver)
     }
 
-    override fun onBind(p0: Intent?): IBinder? {
-        return null
-    }
+    override fun onBind(p0: Intent?): IBinder? = null
 
-    /* Glitch Animations */
+    /** Glitch Animations **/
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
         when (intent.action) {
             WIDGET_CLICK_ACTION -> {
-                val (iterations, delay) = prepareGlitch(0)
-                startGlitch(iterations, delay, Pair(
+                val (_, animation) = prepareGlitch(0)
+                val layout = intent.getIntExtra(LAYOUT, R.layout.divergence_widget_small)
+                startGlitch(animation, Pair(
                     intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID),
-                    intent.getIntExtra(LAYOUT, R.layout.divergence_widget_small)
-                ))
+                    layout
+                ), layout == R.layout.divergence_widget_small, true)
             }
         }
         return START_STICKY
@@ -128,57 +133,43 @@ class Clock : Service() {
         }
     }
 
-    abstract class GlitchRunnable : Runnable {
-        abstract fun stop()
-    }
-
-    private var runningAnimations = mutableListOf<GlitchRunnable>()
-    private fun createClockGlitchRunnable(iterations: Int, glitchTargetAppWidget: Pair<Int, Int>?, ignoreSmall: Boolean): GlitchRunnable {
-        return object : GlitchRunnable() {
-            private var glitchIteration = iterations
-            override fun stop() {
+    private fun createClockGlitchRunnable(animation: List<Long>, glitchTargetAppWidget: Pair<Int, Int>?, updateMinutes: Boolean, override: Boolean): Runnable {
+        return object : Runnable {
+            private var animation = animation.toMutableList()
+            fun stop() {
                 handler.removeCallbacks(this)
-                runningAnimations.remove(this)
-                UpdateWidgets.using(application)
+                UpdateWidgets.using(application, updateMinutes = updateMinutes)
             }
             override fun run() {
-                if (this.glitchIteration <= 0) {
+                if (this.animation.isEmpty()) {
                     stop()
                 } else {
-                    this.glitchIteration -= 1
-                    clockGlitch(glitchTargetAppWidget, ignoreSmall)
+                    if (override || DivergenceWidget.glitch_animation)
+                        clockGlitch(glitchTargetAppWidget, updateMinutes)
                     handler.postDelayed(
                         this,
-                        Random.nextInt(CLOCK_ANIMATION_DELAY_MIN..CLOCK_ANIMATION_DELAY_MAX).toLong()
+                        this.animation.removeAt(this.animation.size - 1)
                     )
                 }
             }
         }
     }
 
-    private fun prepareGlitch(initialDelay: Int): Pair<Int, Long> {
-        // Cancel any currently running animations
-        runningAnimations.map {
-            it.stop()
+    private fun prepareGlitch(initialDelay: Long): Pair<Long, List<Long>> {
+        val delays: List<Long> = List((CLOCK_ANIMATION_ITER_MIN..CLOCK_ANIMATION_ITER_MAX).random()) {
+            (CLOCK_ANIMATION_DELAY_MIN..CLOCK_ANIMATION_DELAY_MAX).random().toLong()
         }
-        if (runningAnimations.isNotEmpty()) UpdateWidgets.using(application)
-        runningAnimations.clear()
         return Pair(
-            Random.nextInt(CLOCK_ANIMATION_ITER_MIN..CLOCK_ANIMATION_ITER_MAX),
-            (initialDelay - Random.nextInt(CLOCK_ANIMATION_ITER_MIN..CLOCK_ANIMATION_ITER_MAX) * CLOCK_ANIMATION_DELAY_MAX)
-                .toLong()
-                .coerceAtLeast(0L)
+            (initialDelay - delays.sum()).coerceAtLeast(0L),
+            delays
         )
     }
 
-    private fun startGlitch(iterations: Int = 0, delay: Long = 0, glitchTargetAppWidget: Pair<Int, Int>? = null, ignoreSmall: Boolean = true) {
-        val clockGlitchRunnable = createClockGlitchRunnable(iterations, glitchTargetAppWidget, ignoreSmall)
-        runningAnimations.add(clockGlitchRunnable)
-        handler.postDelayed(clockGlitchRunnable, delay)
+    private fun startGlitch(animation: List<Long>, glitchTargetAppWidget: Pair<Int, Int>? = null, updateMinutes: Boolean = false, override: Boolean = false) {
+        handler.post(createClockGlitchRunnable(animation, glitchTargetAppWidget, updateMinutes, override))
     }
 
-    private fun clockGlitch(glitchTargetAppWidget: Pair<Int, Int>? = null, ignoreSmall: Boolean) {
-        val settings = PreferenceManager.getDefaultSharedPreferences(this)
+    private fun clockGlitch(glitchTargetAppWidget: Pair<Int, Int>? = null, updateMinutes: Boolean) {
         val appWidgetManager = AppWidgetManager.getInstance(this)
 
         val largeWidgetPairs = appWidgetManager.getAppWidgetIds(
@@ -188,13 +179,10 @@ class Clock : Service() {
             ComponentName(this, DivergenceWidgetSmall::class.java)
         ).map {it to R.layout.divergence_widget_small}
 
-        var pairs = if (!ignoreSmall) largeWidgetPairs + smallWidgetPairs else largeWidgetPairs
+        var pairs = if (updateMinutes) largeWidgetPairs + smallWidgetPairs else largeWidgetPairs
 
-        glitchTargetAppWidget?. let {
-            if (!settings.getBoolean(SETTING_GLITCH_AFFECTS_ALL, false)) {
-                pairs = listOf(it)
-            }
-        }
+        // List of only the target if specified
+        glitchTargetAppWidget?. let { pairs = listOf(it) }
 
         for ((appWidgetId, layout) in pairs) {
             val views = RemoteViews(packageName, layout)
